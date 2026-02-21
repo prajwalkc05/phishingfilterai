@@ -1,31 +1,18 @@
-import random
+from app.models.model_loader import model, vectorizer
 
-# Simple phishing keywords
-PHISHING_KEYWORDS = [
-    "bank", "account", "otp", "verify", "click",
-    "urgent", "blocked", "password", "loan", "link"
-]
-
+LABELS = {
+    0: "safe",
+    1: "spam",
+    2: "phishing"
+}
 
 def predict_sms(message: str):
-    message_lower = message.lower()
+    vec = vectorizer.transform([message])
 
-    score = 0
-    for word in PHISHING_KEYWORDS:
-        if word in message_lower:
-            score += 1
-
-    # confidence simulation
-    confidence = min(score * 0.2, 0.95)
-
-    if score > 2:
-        label = "phishing"
-    elif score > 0:
-        label = "spam"
-    else:
-        label = "safe"
+    pred = model.predict(vec)[0]
+    prob = model.predict_proba(vec)[0].max()
 
     return {
-        "label": label,
-        "confidence": round(confidence, 2)
+        "label": LABELS[pred],
+        "confidence": round(float(prob), 2)
     }

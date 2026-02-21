@@ -1,5 +1,6 @@
 .venv/
 venv/
+bert_env/
 __pycache__/
 *.pyc
 .env
