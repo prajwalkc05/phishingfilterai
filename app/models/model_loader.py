@@ -15,7 +15,9 @@ def load_model():
         tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
         model = AutoModelForSequenceClassification.from_pretrained(
             MODEL_NAME,
-            low_cpu_mem_usage=True
+            low_cpu_mem_usage=True,
+            torch_dtype=torch.float16
         )
         model.eval()
         torch.set_num_threads(1)
+    return tokenizer, model
