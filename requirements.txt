@@ -1,7 +1,5 @@
 fastapi
 uvicorn
-transformers
-torch
-huggingface_hub
+requests
 pymongo
 python-dotenv

@@ -1,23 +1,39 @@
-import warnings
-warnings.filterwarnings("ignore", category=FutureWarning)
+import requests
+import os
+from dotenv import load_dotenv
 
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-import torch
+load_dotenv()
 
-MODEL_NAME = "prajwalkc/phishing-bert"
+HF_API_URL = "https://api-inference.huggingface.co/models/prajwalkc/phishing-bert"
 
-tokenizer = None
-model = None
+headers = {
+    "Authorization": f"Bearer {os.getenv('HF_TOKEN')}"
+}
 
-def load_model():
-    global tokenizer, model
-    if tokenizer is None:
-        tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-        model = AutoModelForSequenceClassification.from_pretrained(
-            MODEL_NAME,
-            low_cpu_mem_usage=True,
-            torch_dtype=torch.float16
-        )
-        model.eval()
-        torch.set_num_threads(1)
-    return tokenizer, model
+LABELS = {
+    0: "safe",
+    1: "spam",
+    2: "phishing"
+}
+
+def predict_sms(text: str):
+    payload = {"inputs": text}
+
+    response = requests.post(HF_API_URL, headers=headers, json=payload)
+
+    if response.status_code != 200:
+        return {"error": "Model unavailable", "label": "unknown", "confidence": 0.0}
+
+    result = response.json()
+    
+    if isinstance(result, list) and len(result) > 0:
+        predictions = result[0]
+        max_pred = max(predictions, key=lambda x: x['score'])
+        label_id = int(max_pred['label'].split('_')[-1])
+        
+        return {
+            "label": LABELS.get(label_id, "unknown"),
+            "confidence": round(max_pred['score'], 2)
+        }
+    
+    return {"error": "Invalid response", "label": "unknown", "confidence": 0.0}
