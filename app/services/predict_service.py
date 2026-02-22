@@ -1,4 +1,4 @@
-from app.models.model_loader import model, vectorizer
+from app.models.model_loader import model, tokenizer
 
 LABELS = {
     0: "safe",
@@ -7,12 +7,19 @@ LABELS = {
 }
 
 def predict_sms(message: str):
-    vec = vectorizer.transform([message])
+    inputs = tokenizer(
+        message,
+        return_tensors="pt",
+        truncation=True,
+        padding=True,
+        max_length=128
+    )
 
-    pred = model.predict(vec)[0]
-    prob = model.predict_proba(vec)[0].max()
+    outputs = model(**inputs)
+    probs = outputs.logits.softmax(dim=1)
+    confidence, pred = probs.max(dim=1)
 
     return {
-        "label": LABELS[pred],
-        "confidence": round(float(prob), 2)
+        "label": LABELS[pred.item()],
+        "confidence": round(confidence.item(), 2)
     }

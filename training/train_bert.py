@@ -13,6 +13,10 @@ from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 train_df = pd.read_csv("data/train.csv")
 test_df = pd.read_csv("data/test.csv")
 
+# Drop rows with missing values
+train_df = train_df.dropna(subset=["cleaned", "label"])
+test_df = test_df.dropna(subset=["cleaned", "label"])
+
 # Use cleaned text
 train_df = train_df[["cleaned", "label"]]
 test_df = test_df[["cleaned", "label"]]

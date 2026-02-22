@@ -1,7 +1,25 @@
-.venv/
+# Python
 venv/
-bert_env/
+.venv/
 __pycache__/
-*.pyc
-.env
+
+# Models
+bert_model/
+final_model/
+*.bin
+*.pt
+*.safetensors
+
+# Data
+data/
+*.csv
+
+# Training
+training/checkpoints/
+training/runs/
+
+# Hugging Face cache
+.cache/
+
+# OS
 .DS_Store

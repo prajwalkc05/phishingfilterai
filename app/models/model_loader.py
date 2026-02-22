@@ -1,5 +1,8 @@
-import joblib
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-# Load trained model and vectorizer
-model = joblib.load("app/models/baseline_model.pkl")
-vectorizer = joblib.load("app/models/vectorizer.pkl")
+MODEL_NAME = "prajwalkc/phishing-bert"
+
+tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
+
+model.eval()
