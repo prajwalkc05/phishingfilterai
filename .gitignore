@@ -3,6 +3,9 @@ venv/
 .venv/
 __pycache__/
 
+# Environment
+.env
+
 # Models
 bert_model/
 final_model/
@@ -20,6 +23,7 @@ training/runs/
 
 # Hugging Face cache
 .cache/
+hf_cache/
 
 # OS
 .DS_Store
