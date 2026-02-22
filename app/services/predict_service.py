@@ -1,4 +1,4 @@
-from app.models.model_loader import model, tokenizer
+from app.models.model_loader import load_model, tokenizer, model
 
 LABELS = {
     0: "safe",
@@ -7,6 +7,8 @@ LABELS = {
 }
 
 def predict_sms(message: str):
+    load_model()
+    
     inputs = tokenizer(
         message,
         return_tensors="pt",

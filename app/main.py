@@ -1,16 +1,9 @@
 from fastapi import FastAPI
-from app.models.model_loader import tokenizer, model
-import torch
+from app.api.routes import router
 
-app = FastAPI()
+app = FastAPI(
+    title="AI Phishing SMS API",
+    version="1.0"
+)
 
-@app.post("/predict")
-def predict(message: str):
-    inputs = tokenizer(message, return_tensors="pt", truncation=True)
-    outputs = model(**inputs)
-
-    probs = torch.softmax(outputs.logits, dim=1)
-    label = probs.argmax().item()
-    confidence = probs.max().item()
-
-    return {"label": label, "confidence": confidence}
+app.include_router(router)
