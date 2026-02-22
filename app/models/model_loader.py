@@ -1,3 +1,6 @@
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
+
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 MODEL_NAME = "prajwalkc/phishing-bert"
