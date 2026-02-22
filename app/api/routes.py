@@ -13,10 +13,13 @@ def predict(request: SMSRequest):
 
 @router.post("/feedback")
 def store_feedback(data: dict = Body(...)):
+    if feedback_collection is None:
+        return {"status": "error", "message": "Database not configured"}
+    
     feedback_collection.insert_one({
-        "message": data["message"],
-        "predicted_label": data["predicted"],
-        "user_label": data["correct"],
+        "message": data.get("message"),
+        "predicted_label": data.get("predicted") or data.get("predicted_label"),
+        "user_label": data.get("correct") or data.get("user_label"),
         "timestamp": datetime.now(timezone.utc)
     })
 
