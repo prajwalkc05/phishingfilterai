@@ -1,5 +1,5 @@
 fastapi
 uvicorn
-requests
+gradio_client
 pymongo
 python-dotenv
