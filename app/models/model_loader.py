@@ -4,10 +4,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-HF_API_URL = "https://api-inference.huggingface.co/models/prajwalkc/phishing-bert"
+HF_API_URL = "https://router.huggingface.co/models/prajwalkc/phishing-bert"
 
 headers = {
-    "Authorization": f"Bearer {os.getenv('HF_TOKEN')}"
+    "Authorization": f"Bearer {os.getenv('HF_TOKEN')}",
+    "Content-Type": "application/json"
 }
 
 LABELS = {
@@ -17,7 +18,10 @@ LABELS = {
 }
 
 def predict_sms(text: str):
-    payload = {"inputs": text}
+    payload = {
+        "inputs": text,
+        "options": {"wait_for_model": True}
+    }
 
     response = requests.post(HF_API_URL, headers=headers, json=payload)
 
