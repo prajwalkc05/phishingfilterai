@@ -1,15 +1,14 @@
 import requests
 import os
 from dotenv import load_dotenv
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import torch
 
 load_dotenv()
 
-HF_API_URL = "https://router.huggingface.co/models/prajwalkc/phishing-bert"
-
-headers = {
-    "Authorization": f"Bearer {os.getenv('HF_TOKEN')}",
-    "Content-Type": "application/json"
-}
+model_name = "prajwalkc/phishing-bert"
+tokenizer = None
+model = None
 
 LABELS = {
     0: "safe",
@@ -17,39 +16,29 @@ LABELS = {
     2: "phishing"
 }
 
+def load_model():
+    global tokenizer, model
+    if tokenizer is None or model is None:
+        tokenizer = AutoTokenizer.from_pretrained(model_name, token=os.getenv('HF_TOKEN'))
+        model = AutoModelForSequenceClassification.from_pretrained(model_name, token=os.getenv('HF_TOKEN'))
+        model.eval()
+
 def predict_sms(text: str):
-    payload = {
-        "inputs": text,
-        "options": {"wait_for_model": True}
-    }
-
-    response = requests.post(HF_API_URL, headers=headers, json=payload)
-
-    if response.status_code != 200:
-        print(f"Error: {response.status_code}, {response.text}")
-        return {"error": "Model unavailable", "label": "unknown", "confidence": 0.0}
-
-    result = response.json()
-    print(f"API Response: {result}")
-    
-    # Handle [[{label, score}]] format
-    if isinstance(result, list) and len(result) > 0:
-        predictions = result[0] if isinstance(result[0], list) else result
+    try:
+        load_model()
         
-        if isinstance(predictions, list) and len(predictions) > 0:
-            max_pred = max(predictions, key=lambda x: x['score'])
-            
-            # Extract label number from 'LABEL_0', 'LABEL_1', etc.
-            label_str = max_pred['label']
-            if 'LABEL_' in label_str:
-                label_id = int(label_str.split('_')[-1])
-            else:
-                label_id = int(label_str)
-            
-            return {
-                "label": LABELS.get(label_id, "unknown"),
-                "confidence": round(max_pred['score'], 2)
-            }
-    
-    print(f"Unexpected format: {result}")
-    return {"error": "Invalid response", "label": "unknown", "confidence": 0.0}
+        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512)
+        
+        with torch.no_grad():
+            outputs = model(**inputs)
+            predictions = torch.nn.functional.softmax(outputs.logits, dim=-1)
+            label_id = torch.argmax(predictions, dim=-1).item()
+            confidence = predictions[0][label_id].item()
+        
+        return {
+            "label": LABELS.get(label_id, "unknown"),
+            "confidence": round(confidence, 2)
+        }
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return {"error": str(e), "label": "unknown", "confidence": 0.0}
