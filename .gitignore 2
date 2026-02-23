@@ -1,0 +1,22 @@
+.venv/
+venv/
+bert_env/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+
+# Data
+data/
+*.csv
+
+# Models
+app/models/
+*.bin
+*.pt
+
+# Huggingface
+.cache/
+
+# Logs
+logs/
