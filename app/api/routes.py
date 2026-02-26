@@ -6,6 +6,17 @@ from datetime import datetime, timezone
 
 router = APIRouter()
 
+@router.get("/")
+def root():
+    return {
+        "message": "Phishing SMS Detection API",
+        "version": "1.0",
+        "endpoints": {
+            "predict": "POST /predict",
+            "feedback": "POST /feedback"
+        }
+    }
+
 @router.post("/predict", response_model=PredictionResponse)
 def predict(request: SMSRequest):
     result = predict_sms_wrapper(request.message)
