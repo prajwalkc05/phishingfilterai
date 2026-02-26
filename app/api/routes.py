@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 router = APIRouter()
 
 @router.get("/")
+@router.head("/")
 def root():
     return {
         "message": "Phishing SMS Detection API",
