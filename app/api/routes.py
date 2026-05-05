@@ -23,7 +23,7 @@ def predict(request: SMSRequest):
     result = predict_sms_wrapper(request.message)
     return result
 
-@@router.post("/feedback")
+@router.post("/feedback")
 def store_feedback(data: dict = Body(...)):
     if feedback_collection is None:
         return {"status": "error", "message": "Database not configured"}
@@ -44,4 +44,3 @@ def store_feedback(data: dict = Body(...)):
     )
 
     return {"status": "saved"}
-
